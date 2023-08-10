@@ -19,12 +19,6 @@ Windows 10
 - Build: Shit+Ctrl+B
 - Open logo.sfc with a SNES Emulator
 
-### Programmer's Notepad
-- Install Programmer's Notepad: https://github.com/alekmaul/pvsneslib/wiki/PVSneslib-and-Programmer-Notepad
-- Open sneslogo.pnproj with Programmer's Notepad
-- Click on Tools>make in the top menu
-- Open logo.sfc with a SNES Emulator
-
 ## PVSnesLib
 ### Installation
 https://gist.github.com/kobenairb/00c2cf30822d8d2d5994850f68a5cfbdss
