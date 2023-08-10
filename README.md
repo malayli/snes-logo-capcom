@@ -21,7 +21,7 @@ Windows 10
 
 ## PVSnesLib
 ### Installation
-https://gist.github.com/kobenairb/00c2cf30822d8d2d5994850f68a5cfbdss
+https://gist.github.com/kobenairb/00c2cf30822d8d2d5994850f68a5cfbd
 
 Then execute in MSYS2 terminal:
 pacman -Sy mingw-w64-ucrt-x86_64-pcre2
