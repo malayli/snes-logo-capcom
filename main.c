@@ -9,6 +9,9 @@
 #include "soundbank.h"
 
 #define BG0 0
+#define BG1 1
+#define BG2 2
+#define BG3 3
 #define PAL0 0
 
 // Graphics available outside the file
@@ -48,14 +51,15 @@ int main(void) {
     
     WaitForVBlank();
     spcPlay(0);
-
-    // Now Put in 16 color mode and disable Bgs except current
+    
     setMode(BG_MODE1, 0);
-    bgSetDisable(1);
-    bgSetDisable(2);
+    bgSetEnable(BG0);
+    bgSetDisable(BG1);
+    bgSetDisable(BG2);
+    bgSetDisable(BG3);
 
-    // Screen activated
-    setScreenOn();
+    setFadeEffect(FADE_IN);
+	WaitForVBlank();
 
     // Load map in memory and update it regarding current location of the sprite
     mapLoad((u8 *)&logoLayerMap, (u8 *)&logoTilesDef, (u8 *)&logoTilesProp);
