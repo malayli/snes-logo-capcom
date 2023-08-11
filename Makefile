@@ -23,7 +23,7 @@ export ROMNAME := logo
 SMCONVFLAGS	:= -s -o $(SOUNDBANK) -V -b 5
 musics: $(SOUNDBANK).obj
 
-all: musics bitmaps $(ROMNAME).sfc
+all: musics $(ROMNAME).sfc
 
 cleanGfxLogo:
 	@echo clean Logo graphics data
