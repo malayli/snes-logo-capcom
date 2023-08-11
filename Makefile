@@ -23,21 +23,18 @@ export ROMNAME := logo
 SMCONVFLAGS	:= -s -o $(SOUNDBANK) -V -b 5
 musics: $(SOUNDBANK).obj
 
-all: musics $(ROMNAME).sfc
+all: musics logo $(ROMNAME).sfc
 
 cleanGfxLogo:
-	@echo clean Logo graphics data
-	@rm -f res/*.pic res/*.pal res/*.map res/*.m16 res/*.b16 res/*.o16 res/*.t16
+	@echo clean Capcom graphics data
+	@rm -f res/*.pic res/*.pal
 
 clean: cleanBuildRes cleanRom cleanGfx cleanGfxLogo cleanAudio
 
 #---------------------------------------------------------------------------------
-res/logoTileSet.pic: res/logoTileSet.png
-	@echo convert map tileset ... $(notdir $@)
-	$(GFXCONV) -gs8 -pc16 -po48 -m -fpng -n $<
 
-logoLayerMapBg1.m16: res/logo.json res/logoTileSet.pic
-	@echo convert map logo ... $(notdir $@)
-	$(TMXCONV) $< res/logoTileSet.map
+logo.pic: res/logo.bmp
+	@echo convert font with no tile reduction ... $(notdir $@)
+	$(GFXCONV) -pc16 -n -gs8 -pe1 -fbmp  $<
 
-bitmaps : logoLayerMapBg1.m16 res/logoTileSet.pic
+logo : logo.pic
