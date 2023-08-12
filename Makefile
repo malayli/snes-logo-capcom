@@ -11,7 +11,8 @@ export AUDIOFILES :=	$(foreach dir, $(AUDIODIR), \
 # then define the path to generate soundbank data. The name can be different but do not forget to update your include in .c file !
 export SOUNDBANK := soundbank
 
-include ${PVSNESLIB_HOME}/devkitsnes/snes_rules
+# include ${PVSNESLIB_HOME}/devkitsnes/snes_rules
+include snes_rules
 
 .PHONY: bitmaps all
 

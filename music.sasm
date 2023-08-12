@@ -1,0 +1,16 @@
+.MEMORYMAP
+  SLOTSIZE $8000
+  DEFAULTSLOT 0
+  SLOT 0 $8000
+  SLOT 1 $0 $2000
+  SLOT 2 $2000 $E000
+  SLOT 3 $0 $10000
+.ENDME                          ; End MemoryMap definition
+
+.ROMBANKSIZE $8000              ; Every ROM bank is 32 KBytes in size
+.ROMBANKS 8     
+
+.define spcFile "logo.spc"
+
+.section "SpcMainCode"
+.ends
