@@ -14,17 +14,203 @@
 #define BG3 3
 #define PAL0 0
 
+// ROM
+
 // Graphics available outside the file
 extern char logoPic, logoPic_end, logoPalette; // for map & tileset of map
 extern char logoLayerMap, logoTilesDef, logoTilesProp;
 
-s16 mapscx; // camera x variable
+#define blackColor RGB5(0x00, 0x00, 0x00)
 
 extern char SOUNDBANK__;
 
-void initLevelMusic() {
+const u16 logoPalette1[] = {
+    blackColor, 
+
+    RGB8(255, 255, 239),
+    RGB8(255, 247, 41), 
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(247, 231, 222),
+    RGB8(231, 181, 0),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette2[] = {
+    blackColor, 
+
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette3[] = {
+    blackColor, 
+
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(107, 57, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette4[] = {
+    blackColor, 
+
+    RGB8(214, 181, 0),
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+
+    RGB8(255, 255, 239),
+    RGB8(255, 255, 239),
+
+    RGB8(132, 82, 0),
+    RGB8(173, 123, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(247, 231, 222),
+
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette5[] = {
+    blackColor, 
+
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(107, 57, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette6[] = {
+    blackColor, 
+
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+
+    RGB8(16, 16, 16)
+};
+
+// RAM
+
+s16 mapscx; // camera x variable
+u8 logoState;
+u8 logoTimer;
+u16 palEntryTemp;
+
+void initLogoMusic() {
     spcSetBank(&SOUNDBANK__);
     spcLoad(0);
+}
+
+void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
+    palEntryTemp = tilePaletteNumber<<4;
+    dmaCopyCGram(source, palEntryTemp, 32);
+}
+
+void updateLogo() {
+    if (logoState == 1) {
+        return;
+    }
+
+    if (logoTimer == 48 + 68) {
+        initBackgroundPalette((u8 *)logoPalette2, PAL0);
+
+    } else if (logoTimer == 52 + 68) {
+        initBackgroundPalette((u8 *)logoPalette3, PAL0);
+
+    } else if (logoTimer == 56 + 68) {
+        initBackgroundPalette((u8 *)logoPalette4, PAL0);
+
+    } else if (logoTimer == 60 + 68) {
+        initBackgroundPalette((u8 *)logoPalette5, PAL0);
+
+    } else if (logoTimer == 64 + 68) {
+        initBackgroundPalette((u8 *)logoPalette6, PAL0);
+
+    } else if (logoTimer == 68 + 68) {
+        initBackgroundPalette((u8 *)logoPalette1, PAL0);
+        logoState = 1;
+    }
+
+    logoTimer++;
 }
 
 int main(void) {
@@ -33,6 +219,9 @@ int main(void) {
 
     // Initialize SNES
     consoleInit();
+
+    logoState = 0;
+    logoTimer = 0;
 
     // Init layer with tiles and init also map length 0x6800 is mandatory for map engine
     bgInitTileSet(BG0, 
@@ -47,7 +236,7 @@ int main(void) {
     bgSetMapPtr(BG0, 0x6800, SC_64x32);
 
     WaitForVBlank();
-    initLevelMusic(MOD_LOGO);
+    initLogoMusic(MOD_LOGO);
     
     WaitForVBlank();
     spcPlay(0);
@@ -68,6 +257,8 @@ int main(void) {
     mapscx = 16 * 8; // middle of screen
     
     while (1) {
+        updateLogo();
+
         // Update the map regarding the camera
         mapUpdate();
 
