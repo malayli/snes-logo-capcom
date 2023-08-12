@@ -185,27 +185,29 @@ void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
     dmaCopyCGram(source, palEntryTemp, 32);
 }
 
+const u8 logoTimeOffset = 118;
+
 void updateLogo() {
     if (logoState == 1) {
         return;
     }
 
-    if (logoTimer == 48 + 68) {
+    if (logoTimer == logoTimeOffset) {
         initBackgroundPalette((u8 *)logoPalette2, PAL0);
 
-    } else if (logoTimer == 52 + 68) {
+    } else if (logoTimer == logoTimeOffset + 4) {
         initBackgroundPalette((u8 *)logoPalette3, PAL0);
 
-    } else if (logoTimer == 56 + 68) {
+    } else if (logoTimer == logoTimeOffset + 8) {
         initBackgroundPalette((u8 *)logoPalette4, PAL0);
 
-    } else if (logoTimer == 60 + 68) {
+    } else if (logoTimer == logoTimeOffset + 12) {
         initBackgroundPalette((u8 *)logoPalette5, PAL0);
 
-    } else if (logoTimer == 64 + 68) {
+    } else if (logoTimer == logoTimeOffset + 16) {
         initBackgroundPalette((u8 *)logoPalette6, PAL0);
 
-    } else if (logoTimer == 68 + 68) {
+    } else if (logoTimer == logoTimeOffset + 20) {
         initBackgroundPalette((u8 *)logoPalette1, PAL0);
         logoState = 1;
     }
