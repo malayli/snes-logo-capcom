@@ -81,10 +81,157 @@ const u16 logoTileMap[] = {
 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10), 37 | (PAL1<<10)
 };
 
+const u16 logoPalette1[] = {
+    blackColor, 
+
+    RGB8(255, 255, 239),
+    RGB8(255, 247, 41), 
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(247, 231, 222),
+    RGB8(231, 181, 0),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette2[] = {
+    blackColor, 
+
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette3[] = {
+    blackColor, 
+
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(107, 57, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette4[] = {
+    blackColor, 
+
+    RGB8(214, 181, 0),
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+
+    RGB8(255, 255, 239),
+    RGB8(255, 255, 239),
+
+    RGB8(132, 82, 0),
+    RGB8(173, 123, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(247, 231, 222),
+
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette5[] = {
+    blackColor, 
+
+    RGB8(231, 214, 33), 
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(107, 57, 0),
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+
+    RGB8(24, 57, 156),
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+
+    RGB8(16, 16, 16)
+};
+
+const u16 logoPalette6[] = {
+    blackColor, 
+
+    RGB8(255, 247, 41), 
+    RGB8(255, 255, 239),
+    RGB8(231, 214, 33), 
+
+    RGB8(214, 181, 0),
+    RGB8(181, 148, 0),
+
+    RGB8(231, 181, 0),
+    RGB8(247, 231, 222),
+    RGB8(173, 123, 0),
+    RGB8(132, 82, 0),
+    RGB8(107, 57, 0),
+
+    RGB8(16, 49, 148),
+    RGB8(41, 74, 173),
+    RGB8(33, 66, 165),
+    RGB8(24, 57, 156),
+
+    RGB8(16, 16, 16)
+};
+
 // RAM
 
 u16 bgTileIndex;
 u16 bg3TileMap[1024];
+u8 logoState;
+u8 logoTimer;
+u16 palEntryTemp;
 
 void initLogoMusic() {
     spcSetBank(&SOUNDBANK__);
@@ -110,6 +257,39 @@ void initBg3Black() {
     dmaCopyVram((u8 *)emptyPicture, 0x5000, 32);
 }
 
+void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
+    palEntryTemp = tilePaletteNumber<<4;
+    dmaCopyCGram(source, palEntryTemp, 32);
+}
+
+void updateLogo() {
+    if (logoState == 1) {
+        return;
+    }
+
+    if (logoTimer == 48 + 68) {
+        initBackgroundPalette((u8 *)logoPalette2, PAL1);
+
+    } else if (logoTimer == 52 + 68) {
+        initBackgroundPalette((u8 *)logoPalette3, PAL1);
+
+    } else if (logoTimer == 56 + 68) {
+        initBackgroundPalette((u8 *)logoPalette4, PAL1);
+
+    } else if (logoTimer == 60 + 68) {
+        initBackgroundPalette((u8 *)logoPalette5, PAL1);
+
+    } else if (logoTimer == 64 + 68) {
+        initBackgroundPalette((u8 *)logoPalette6, PAL1);
+
+    } else if (logoTimer == 68 + 68) {
+        initBackgroundPalette((u8 *)logoPalette1, PAL1);
+        logoState = 1;
+    }
+
+    logoTimer++;
+}
+
 int main(void) {
     // Initialize sound engine (take some time)
     spcBoot();
@@ -118,6 +298,9 @@ int main(void) {
     consoleInit();
 
     dmaClearVram();
+
+    logoState = 0;
+    logoTimer = 0;
 
     // Load company fire on BG1
     bgSetMapPtr(BG0, 0x0000, SC_32x32);
@@ -150,6 +333,8 @@ int main(void) {
 	WaitForVBlank();
     
     while (1) {
+        updateLogo();
+        
         // Update music / sfx stream and wait vbl
         spcProcess();
 
