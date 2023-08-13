@@ -231,7 +231,6 @@ u16 bgTileIndex;
 u16 bg3TileMap[1024];
 u8 logoState;
 u8 logoTimer;
-u16 palEntryTemp;
 
 void initLogoMusic() {
     spcSetBank(&SOUNDBANK__);
@@ -258,31 +257,32 @@ void initBg3Black() {
 }
 
 void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
-    palEntryTemp = tilePaletteNumber<<4;
-    dmaCopyCGram(source, palEntryTemp, 32);
+    dmaCopyCGram(source, tilePaletteNumber<<4, 32);
 }
+
+const u8 logoTimerOffset = 0;
 
 void updateLogo() {
     if (logoState == 1) {
         return;
     }
 
-    if (logoTimer == 48 + 68) {
+    if (logoTimer == logoTimerOffset) {
         initBackgroundPalette((u8 *)logoPalette2, PAL1);
 
-    } else if (logoTimer == 52 + 68) {
+    } else if (logoTimer == logoTimerOffset + 4) {
         initBackgroundPalette((u8 *)logoPalette3, PAL1);
 
-    } else if (logoTimer == 56 + 68) {
+    } else if (logoTimer == logoTimerOffset + 8) {
         initBackgroundPalette((u8 *)logoPalette4, PAL1);
 
-    } else if (logoTimer == 60 + 68) {
+    } else if (logoTimer == logoTimerOffset + 12) {
         initBackgroundPalette((u8 *)logoPalette5, PAL1);
 
-    } else if (logoTimer == 64 + 68) {
+    } else if (logoTimer == logoTimerOffset + 16) {
         initBackgroundPalette((u8 *)logoPalette6, PAL1);
 
-    } else if (logoTimer == 68 + 68) {
+    } else if (logoTimer == logoTimerOffset + 20) {
         initBackgroundPalette((u8 *)logoPalette1, PAL1);
         logoState = 1;
     }
@@ -322,6 +322,8 @@ int main(void) {
     
     WaitForVBlank();
     spcPlay(0);
+    spcProcess();
+    WaitForVBlank();
     
     setMode(BG_MODE1, 0);
     bgSetEnable(BG0);
@@ -329,14 +331,11 @@ int main(void) {
     bgSetDisable(BG2);
     bgSetDisable(BG3);
 
-    setFadeEffect(FADE_IN);
+    setFadeEffectEx(FADE_IN, 8);
 	WaitForVBlank();
     
     while (1) {
         updateLogo();
-        
-        // Update music / sfx stream and wait vbl
-        spcProcess();
 
         // Wait vblank and display map on screen
         WaitForVBlank();
