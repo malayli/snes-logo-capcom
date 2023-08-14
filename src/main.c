@@ -27,7 +27,7 @@ int main(void) {
 
         spcProcess();
 
-        // Wait vblank and display map on screen
+        // Wait for vblank
         WaitForVBlank();
     }
     return 0;
