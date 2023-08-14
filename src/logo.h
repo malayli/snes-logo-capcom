@@ -1,0 +1,2 @@
+void initLogo();
+void updateLogo();

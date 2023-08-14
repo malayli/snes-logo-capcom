@@ -168,6 +168,8 @@ const u16 logoPalette6[] = {
     RGB8(16, 16, 16)
 };
 
+const u8 logoTimeOffset = 118;
+
 // RAM
 
 s16 mapscx; // camera x variable
@@ -185,43 +187,7 @@ void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
     dmaCopyCGram(source, palEntryTemp, 32);
 }
 
-const u8 logoTimeOffset = 118;
-
-void updateLogo() {
-    if (logoState == 1) {
-        return;
-    }
-
-    if (logoTimer == logoTimeOffset) {
-        initBackgroundPalette((u8 *)logoPalette2, PAL0);
-
-    } else if (logoTimer == logoTimeOffset + 4) {
-        initBackgroundPalette((u8 *)logoPalette3, PAL0);
-
-    } else if (logoTimer == logoTimeOffset + 8) {
-        initBackgroundPalette((u8 *)logoPalette4, PAL0);
-
-    } else if (logoTimer == logoTimeOffset + 12) {
-        initBackgroundPalette((u8 *)logoPalette5, PAL0);
-
-    } else if (logoTimer == logoTimeOffset + 16) {
-        initBackgroundPalette((u8 *)logoPalette6, PAL0);
-
-    } else if (logoTimer == logoTimeOffset + 20) {
-        initBackgroundPalette((u8 *)logoPalette1, PAL0);
-        logoState = 1;
-    }
-
-    logoTimer++;
-}
-
-int main(void) {
-    // Initialize sound engine (take some time)
-    spcBoot();
-
-    // Initialize SNES
-    consoleInit();
-
+void initLogo() {
     logoState = 0;
     logoTimer = 0;
 
@@ -257,22 +223,38 @@ int main(void) {
 
     // generic playing loop
     mapscx = 16 * 8; // middle of screen
-    
-    while (1) {
-        updateLogo();
+}
 
-        // Update the map regarding the camera
-        mapUpdate();
-
-        // update camera regarding scrolling
-        mapUpdateCamera(mapscx, 0);
-        
-        // Update music / sfx stream and wait vbl
-        spcProcess();
-
-        // Wait vblank and display map on screen
-        WaitForVBlank();
-        mapVblank();
+void updateLogo() {
+    if (logoState == 1) {
+        return;
     }
-    return 0;
+
+    if (logoTimer == logoTimeOffset) {
+        initBackgroundPalette((u8 *)logoPalette2, PAL0);
+
+    } else if (logoTimer == logoTimeOffset + 4) {
+        initBackgroundPalette((u8 *)logoPalette3, PAL0);
+
+    } else if (logoTimer == logoTimeOffset + 8) {
+        initBackgroundPalette((u8 *)logoPalette4, PAL0);
+
+    } else if (logoTimer == logoTimeOffset + 12) {
+        initBackgroundPalette((u8 *)logoPalette5, PAL0);
+
+    } else if (logoTimer == logoTimeOffset + 16) {
+        initBackgroundPalette((u8 *)logoPalette6, PAL0);
+
+    } else if (logoTimer == logoTimeOffset + 20) {
+        initBackgroundPalette((u8 *)logoPalette1, PAL0);
+        logoState = 1;
+    }
+
+    logoTimer++;
+
+    // Update the map regarding the camera
+    mapUpdate();
+
+    // update camera regarding scrolling
+    mapUpdateCamera(mapscx, 0);
 }
