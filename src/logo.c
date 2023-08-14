@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------
 
 
-    Logo SNES Project
+    Capcom Logo for SNES Projects
 
 
 ---------------------------------------------------------------------------------*/
@@ -225,6 +225,8 @@ const u16 logoPalette6[] = {
     RGB8(16, 16, 16)
 };
 
+const u8 logoTimerOffset = 0;
+
 // RAM
 
 u16 bgTileIndex;
@@ -232,9 +234,11 @@ u16 bg3TileMap[1024];
 u8 logoState;
 u8 logoTimer;
 
+/*!\brief Load the logo music.
+*/
 void initLogoMusic() {
     spcSetBank(&SOUNDBANK__);
-    spcLoad(0);
+    spcLoad(MOD_LOGO);
 }
 
 /*!\brief Set all the tiles to 0, set a palette number and a tile priority.
@@ -246,6 +250,8 @@ void clearBgTextEx(u16 *tileMap, u8 paletteNumber, u8 priority) {
     }
 }
 
+/*!\brief Load a black background on BG3.
+*/
 void initBg3Black() {
     bgSetMapPtr(BG2, 0x0000 + 2048, SC_32x32);
     bgSetGfxPtr(BG2, 0x5000);
@@ -256,12 +262,50 @@ void initBg3Black() {
     dmaCopyVram((u8 *)emptyPicture, 0x5000, 32);
 }
 
+/*!\brief Copy the given palette to CGRAM.
+*/
 void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
     dmaCopyCGram(source, tilePaletteNumber<<4, 32);
 }
 
-const u8 logoTimerOffset = 0;
+/*!\brief Initialize the logo screen.
+*/
+void initLogo() {
+    logoState = 0;
+    logoTimer = 0;
 
+    // Load logo on BG1
+    bgSetMapPtr(BG0, 0x0000, SC_32x32);
+    bgInitTileSet(BG0, 
+        &logoPic,
+        &logoPalette,
+        PAL1,
+        (&logoPic_end - &logoPic),
+        16*2,
+        BG_16COLORS,
+        0x3000);
+    WaitForVBlank();
+    dmaCopyVram((u8 *)logoTileMap, 0x0000, 1024*2);
+
+    initBg3Black();
+
+    WaitForVBlank();
+    initLogoMusic();
+    
+    WaitForVBlank();
+    spcPlay(0);
+    spcProcess();
+    WaitForVBlank();
+    
+    setMode(BG_MODE1, 0);
+    bgSetEnable(BG0);
+    bgSetDisable(BG1);
+    bgSetDisable(BG2);
+    bgSetDisable(BG3);
+}
+
+/*!\brief Update the logo animation.
+*/
 void updateLogo() {
     if (logoState == 1) {
         return;
@@ -288,57 +332,4 @@ void updateLogo() {
     }
 
     logoTimer++;
-}
-
-int main(void) {
-    // Initialize sound engine (take some time)
-    spcBoot();
-
-    // Initialize SNES
-    consoleInit();
-
-    dmaClearVram();
-
-    logoState = 0;
-    logoTimer = 0;
-
-    // Load company fire on BG1
-    bgSetMapPtr(BG0, 0x0000, SC_32x32);
-    bgInitTileSet(BG0, 
-        &logoPic,
-        &logoPalette,
-        PAL1,
-        (&logoPic_end - &logoPic),
-        16*2,
-        BG_16COLORS,
-        0x3000);
-    WaitForVBlank();
-    dmaCopyVram((u8 *)logoTileMap, 0x0000, 1024*2);
-
-    initBg3Black();
-
-    WaitForVBlank();
-    initLogoMusic(MOD_LOGO);
-    
-    WaitForVBlank();
-    spcPlay(0);
-    spcProcess();
-    WaitForVBlank();
-    
-    setMode(BG_MODE1, 0);
-    bgSetEnable(BG0);
-    bgSetDisable(BG1);
-    bgSetDisable(BG2);
-    bgSetDisable(BG3);
-
-    setFadeEffectEx(FADE_IN, 8);
-	WaitForVBlank();
-    
-    while (1) {
-        updateLogo();
-
-        // Wait vblank and display map on screen
-        WaitForVBlank();
-    }
-    return 0;
 }
