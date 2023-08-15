@@ -19,7 +19,7 @@ int main(void) {
 
     initLogo();
 
-    setFadeEffectEx(FADE_IN, 8);
+    setScreenOn();
 	WaitForVBlank();
     
     while (1) {

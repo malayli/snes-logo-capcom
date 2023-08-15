@@ -19,6 +19,10 @@
 
 #define blackColor RGB5(0x00, 0x00, 0x00)
 
+extern char CloudTiles, CloudTiles_end;
+extern char CloudPalette, CloudPalette_end;
+extern char Mapsc, Mapsc_end;
+
 const u8 emptyPicture[] = {
     // First part
     0b00000000, 0b00000000, // Bit plane 1 + Bit plane 0
@@ -225,14 +229,15 @@ const u16 logoPalette6[] = {
     RGB8(16, 16, 16)
 };
 
-const u8 logoTimerOffset = 0;
+const u8 logoTimerOffset = 120;
 
 // RAM
 
-u16 bgTileIndex;
-u16 bg3TileMap[1024];
 u8 logoState;
 u8 logoTimer;
+u8 myColData = 0b11100000;
+s8 intensity = 0b00011111;
+u8 intensitySpeed;
 
 /*!\brief Load the logo music.
 */
@@ -241,25 +246,13 @@ void initLogoMusic() {
     spcLoad(MOD_LOGO);
 }
 
-/*!\brief Set all the tiles to 0, set a palette number and a tile priority.
-*/
-void clearBgTextEx(u16 *tileMap, u8 paletteNumber, u8 priority) {
-    for (bgTileIndex=0; bgTileIndex < 1024;) {
-        tileMap[bgTileIndex] = 0 | (paletteNumber<<10) | (priority<<13);
-        bgTileIndex += 1;
-    }
-}
-
 /*!\brief Load a black background on BG3.
 */
 void initBg3Black() {
     bgSetMapPtr(BG2, 0x0000 + 2048, SC_32x32);
-    bgSetGfxPtr(BG2, 0x5000);
-    clearBgTextEx((u16 *)bg3TileMap, PAL0, 0);
+    bgInitTileSet(2, &CloudTiles, &CloudPalette, 0, (&CloudTiles_end - &CloudTiles), (&CloudPalette_end - &CloudPalette), BG_4COLORS, 0x1000);
     WaitForVBlank();
-    setPaletteColor(PAL0, blackColor);
-    dmaCopyVram((u8 *)bg3TileMap, 0x1000, 32*32*2);
-    dmaCopyVram((u8 *)emptyPicture, 0x5000, 32);
+    dmaCopyVram((u8 *)Mapsc, 0x0000 + 2048, 32*32*2);
 }
 
 /*!\brief Copy the given palette to CGRAM.
@@ -273,6 +266,35 @@ void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
 void initLogo() {
     logoState = 0;
     logoTimer = 0;
+    myColData = 0b11100000;
+    intensity = 0b00011111;
+    intensitySpeed = 0;
+
+    /*! \def REG_CGWSEL
+    \brief Color Math Control Register A (W)
+    7-6  Force Main Screen Black (3=Always, 2=MathWindow, 1=NotMathWin, 0=Never)
+    5-4  Color Math Enable       (0=Always, 1=MathWindow, 2=NotMathWin, 3=Never)
+    3-2  Not used
+    1    Sub Screen BG/OBJ Enable    (0=No/Backdrop only, 1=Yes/Backdrop+BG+OBJ)
+    0    Direct Color (for 256-color BGs)  (0=Use Palette, 1=Direct Color)
+    */
+    REG_CGWSEL = 0b00000010;
+
+    /*! \def REG_CGADSUB
+    \brief Color Math Control Register B (W)
+    7    Color Math Add/Subtract        (0=Add; Main+Sub, 1=Subtract; Main-Sub)
+    6    Color Math "Div2" Half Result  (0=No divide, 1=Divide result by 2)
+    5    Color Math when Main Screen = Backdrop        (0=Off, 1=On) ;\
+    4    Color Math when Main Screen = OBJ/Palette4..7 (0=Off, 1=On) ; OFF: Show
+    -    Color Math when Main Screen = OBJ/Palette0..3 (Always=Off)  ; Raw Main,
+    3    Color Math when Main Screen = BG4             (0=Off, 1=On) ;   or
+    2    Color Math when Main Screen = BG3             (0=Off, 1=On) ; ON: Show
+    1    Color Math when Main Screen = BG2             (0=Off, 1=On) ; Main+/-Sub
+    0    Color Math when Main Screen = BG1             (0=Off, 1=On) ;/
+    */
+    REG_CGADSUB = 0b10000001;
+
+    REG_COLDATA = myColData | intensity;
 
     // Load logo on BG1
     bgSetMapPtr(BG0, 0x0000, SC_32x32);
@@ -289,6 +311,9 @@ void initLogo() {
 
     initBg3Black();
 
+    // Set BG3 SubScreen and
+    bgSetEnableSub(2);
+
     WaitForVBlank();
     initLogoMusic();
     
@@ -297,10 +322,10 @@ void initLogo() {
     spcProcess();
     WaitForVBlank();
     
-    setMode(BG_MODE1, 0);
+    setMode(BG_MODE1, BG3_MODE1_PRORITY_HIGH);
     bgSetEnable(BG0);
     bgSetDisable(BG1);
-    bgSetDisable(BG2);
+    bgSetEnable(BG2);
     bgSetDisable(BG3);
 }
 
@@ -332,4 +357,26 @@ void updateLogo() {
     }
 
     logoTimer++;
+
+    
+    if (intensity >= 0 && intensitySpeed == 4) {
+        /*! \def REG_COLDATA
+            \brief Color Math Sub Screen Backdrop Color (W)
+            This 8bit port allows to manipulate some (or all) bits
+            of a 15bit RGB value. 
+            Examples:
+            - Black: write E0h (R,G,B=0)
+            - Cyan: write 20h (R=0) and DFh (G,B=1Fh)
+            7    Apply Blue  (0=No change, 1=Apply Intensity as Blue)
+            6    Apply Green (0=No change, 1=Apply Intensity as Green)
+            5    Apply Red   (0=No change, 1=Apply Intensity as Red)
+            4-0  Intensity   (0..31)
+        */
+        REG_COLDATA = myColData | intensity;
+        intensity -= 1;
+        intensitySpeed = 0;
+
+    } else {
+        intensitySpeed += 1;
+    }
 }

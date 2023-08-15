@@ -37,4 +37,8 @@ logo.pic: res/logo.bmp
 	@echo convert font with no tile reduction ... $(notdir $@)
 	$(GFXCONV) -pc16 -n -gs8 -pe1 -fbmp  $<
 
-logo : logo.pic
+clouds.pic: res/clouds.bmp
+	$(GFXCONV) -n -pc4 -gs8 -pe0 -po2 -fbmp -m $<
+	@echo convert bitmap ... $(notdir $@)
+
+logo : logo.pic clouds.pic
