@@ -235,8 +235,8 @@ const u8 logoTimerOffset = 120;
 
 u8 logoState;
 u8 logoTimer;
-u8 myColData = 0b11100000;
-s8 intensity = 0b00011111;
+u8 myColData;
+s8 intensity;
 u8 intensitySpeed;
 
 /*!\brief Load the logo music.
