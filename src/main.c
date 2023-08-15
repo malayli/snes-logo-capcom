@@ -20,8 +20,8 @@ int main(void) {
     initLogo();
 
     setScreenOn();
-	WaitForVBlank();
-    
+    WaitForVBlank();
+
     while (1) {
         updateLogo();
 

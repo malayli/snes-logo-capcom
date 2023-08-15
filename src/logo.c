@@ -311,7 +311,7 @@ void initLogo() {
 
     initBg3Black();
 
-    // Set BG3 SubScreen and
+    // Set BG3 as SubScreen
     bgSetEnableSub(2);
 
     WaitForVBlank();
@@ -336,6 +336,7 @@ void updateLogo() {
         return;
     }
 
+    // Capcom color animation
     if (logoTimer == logoTimerOffset) {
         initBackgroundPalette((u8 *)logoPalette2, PAL1);
 
@@ -358,7 +359,7 @@ void updateLogo() {
 
     logoTimer++;
 
-    
+    // Fade in
     if (intensity >= 0 && intensitySpeed == 4) {
         /*! \def REG_COLDATA
             \brief Color Math Sub Screen Backdrop Color (W)
