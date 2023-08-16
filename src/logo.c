@@ -231,13 +231,14 @@ const u16 logoPalette6[] = {
 
 const u8 logoTimerOffset = 120;
 
+const u8 appliedColor = 0b11100000;
+
 // RAM
 
 u8 logoState;
 u8 logoTimer;
-u8 myColData;
-s8 intensity;
-u8 intensitySpeed;
+s8 colorIntensity;
+u8 intensityState;
 
 /*!\brief Load the logo music.
 */
@@ -255,10 +256,12 @@ void initBg3Black() {
     dmaCopyVram((u8 *)blackMap, 0x0000 + 2048, 32*32*2);
 }
 
-/*!\brief Copy the given palette to CGRAM.
+/*!\brief Copy the given background palette to CGRAM.
+    \param palette the palette data
+    \param paletteNumber the palette number
 */
-void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
-    dmaCopyCGram(source, tilePaletteNumber<<4, 32);
+void initBackgroundPalette(u8 *palette, u16 paletteNumber) {
+    dmaCopyCGram(palette, paletteNumber<<4, 32);
 }
 
 /*!\brief Initialize the logo screen.
@@ -266,12 +269,10 @@ void initBackgroundPalette(u8 *source, u16 tilePaletteNumber) {
 void initLogo() {
     logoState = 0;
     logoTimer = 0;
-    myColData = 0b11100000;
-    intensity = 0b00011111;
-    intensitySpeed = 0;
+    colorIntensity = 0b00011111;
+    intensityState = 0;
 
-    /*! \def REG_CGWSEL
-    \brief Color Math Control Register A (W)
+    /*  Color Math Control Register A (W)
     7-6  Force Main Screen Black (3=Always, 2=MathWindow, 1=NotMathWin, 0=Never)
     5-4  Color Math Enable       (0=Always, 1=MathWindow, 2=NotMathWin, 3=Never)
     3-2  Not used
@@ -280,8 +281,7 @@ void initLogo() {
     */
     REG_CGWSEL = 0b00000010;
 
-    /*! \def REG_CGADSUB
-    \brief Color Math Control Register B (W)
+    /*  Color Math Control Register B (W)
     7    Color Math Add/Subtract        (0=Add; Main+Sub, 1=Subtract; Main-Sub)
     6    Color Math "Div2" Half Result  (0=No divide, 1=Divide result by 2)
     5    Color Math when Main Screen = Backdrop        (0=Off, 1=On) ;\
@@ -294,7 +294,7 @@ void initLogo() {
     */
     REG_CGADSUB = 0b10000001;
 
-    REG_COLDATA = myColData | intensity;
+    REG_COLDATA = appliedColor | colorIntensity;
 
     // Load logo on BG1
     bgSetMapPtr(BG0, 0x0000, SC_32x32);
@@ -360,9 +360,8 @@ void updateLogo() {
     logoTimer++;
 
     // Fade in
-    if (intensity >= 0 && intensitySpeed == 4) {
-        /*! \def REG_COLDATA
-            \brief Color Math Sub Screen Backdrop Color (W)
+    if (colorIntensity >= 0 && intensityState == 4) {
+        /*  Color Math Sub Screen Backdrop Color (W)
             This 8bit port allows to manipulate some (or all) bits
             of a 15bit RGB value. 
             Examples:
@@ -373,11 +372,11 @@ void updateLogo() {
             5    Apply Red   (0=No change, 1=Apply Intensity as Red)
             4-0  Intensity   (0..31)
         */
-        REG_COLDATA = myColData | intensity;
-        intensity -= 1;
-        intensitySpeed = 0;
+        REG_COLDATA = appliedColor | colorIntensity;
+        colorIntensity -= 1;
+        intensityState = 0;
 
     } else {
-        intensitySpeed += 1;
+        intensityState += 1;
     }
 }
