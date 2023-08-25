@@ -21,7 +21,6 @@ int main(void) {
     initCapcomLogo();
 
     setScreenOn();
-    WaitForVBlank();
 
     while (1) {
         if (updateCapcomLogo() == 1) {

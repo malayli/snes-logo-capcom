@@ -230,14 +230,14 @@ const u16 logoPalette6[] = {
     RGB8(16, 16, 16)
 };
 
-const u8 logoTimerOffset = 120;
+const u16 logoTimerOffset = 120;
 
 const u8 appliedColor = 0b11100000;
 
 // RAM
 
 u8 logoState;
-u16 logoTimer;
+u16 framesCounter;
 s8 colorIntensity;
 u8 intensityState;
 
@@ -269,7 +269,7 @@ void initBackgroundPalette(u8 *palette, u16 paletteNumber) {
 */
 void initCapcomLogo() {
     logoState = 0;
-    logoTimer = 0;
+    framesCounter = 0;
     colorIntensity = 0b00011111;
     intensityState = 0;
 
@@ -280,7 +280,7 @@ void initCapcomLogo() {
     1    Sub Screen BG/OBJ Enable    (0=No/Backdrop only, 1=Yes/Backdrop+BG+OBJ)
     0    Direct Color (for 256-color BGs)  (0=Use Palette, 1=Direct Color)
     */
-    REG_CGWSEL = 0b00000010;
+    REG_CGWSEL = 0b00000000;
 
     /*  Color Math Control Register B (W)
     7    Color Math Add/Subtract        (0=Add; Main+Sub, 1=Subtract; Main-Sub)
@@ -293,7 +293,7 @@ void initCapcomLogo() {
     1    Color Math when Main Screen = BG2             (0=Off, 1=On) ; Main+/-Sub
     0    Color Math when Main Screen = BG1             (0=Off, 1=On) ;/
     */
-    REG_CGADSUB = 0b10000001;
+    REG_CGADSUB = 0b10111111;
 
     REG_COLDATA = appliedColor | colorIntensity;
 
@@ -337,22 +337,22 @@ u8 updateCapcomLogo() {
     switch(logoState) {
         case 0:
             // Capcom color animation
-            if (logoTimer == logoTimerOffset) {
+            if (framesCounter == logoTimerOffset) {
                 initBackgroundPalette((u8 *)logoPalette2, PAL1);
 
-            } else if (logoTimer == logoTimerOffset + 4) {
+            } else if (framesCounter == logoTimerOffset + 4) {
                 initBackgroundPalette((u8 *)logoPalette3, PAL1);
 
-            } else if (logoTimer == logoTimerOffset + 8) {
+            } else if (framesCounter == logoTimerOffset + 8) {
                 initBackgroundPalette((u8 *)logoPalette4, PAL1);
 
-            } else if (logoTimer == logoTimerOffset + 12) {
+            } else if (framesCounter == logoTimerOffset + 12) {
                 initBackgroundPalette((u8 *)logoPalette5, PAL1);
 
-            } else if (logoTimer == logoTimerOffset + 16) {
+            } else if (framesCounter == logoTimerOffset + 16) {
                 initBackgroundPalette((u8 *)logoPalette6, PAL1);
 
-            } else if (logoTimer == logoTimerOffset + 20) {
+            } else if (framesCounter == logoTimerOffset + 20) {
                 initBackgroundPalette((u8 *)logoPalette1, PAL1);
                 logoState = 1;
             }
@@ -380,10 +380,11 @@ u8 updateCapcomLogo() {
         intensityState += 1;
     }
 
-    if (logoTimer == 200) {
+    if (framesCounter == 200) {
         spcStop();
 
-    } else if (logoTimer == 201) {
+    } else if (framesCounter == 201) {
+        // Note: process spcStop() properly.
         spcProcess();
         return 1;
 
@@ -391,7 +392,7 @@ u8 updateCapcomLogo() {
         spcProcess();
     }
 
-    logoTimer++;
+    framesCounter++;
 
     return 0;
 }
