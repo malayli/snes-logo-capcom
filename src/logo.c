@@ -2,6 +2,7 @@
 
 
     Capcom Logo for SNES Projects
+    Author: digifox
 
 
 ---------------------------------------------------------------------------------*/
@@ -236,7 +237,7 @@ const u8 appliedColor = 0b11100000;
 // RAM
 
 u8 logoState;
-u8 logoTimer;
+u16 logoTimer;
 s8 colorIntensity;
 u8 intensityState;
 
@@ -264,9 +265,9 @@ void initBackgroundPalette(u8 *palette, u16 paletteNumber) {
     dmaCopyCGram(palette, paletteNumber<<4, 32);
 }
 
-/*!\brief Initialize the logo screen.
+/*!\brief Initialize the Capcom logo screen.
 */
-void initLogo() {
+void initCapcomLogo() {
     logoState = 0;
     logoTimer = 0;
     colorIntensity = 0b00011111;
@@ -329,35 +330,34 @@ void initLogo() {
     bgSetDisable(BG3);
 }
 
-/*!\brief Update the logo animation.
+/*!\brief Update the Capcom logo animation.
+    \return 1 when the logo animation is complete, 0 otherwise.
 */
-void updateLogo() {
-    if (logoState == 1) {
-        return;
+u8 updateCapcomLogo() {
+    switch(logoState) {
+        case 0:
+            // Capcom color animation
+            if (logoTimer == logoTimerOffset) {
+                initBackgroundPalette((u8 *)logoPalette2, PAL1);
+
+            } else if (logoTimer == logoTimerOffset + 4) {
+                initBackgroundPalette((u8 *)logoPalette3, PAL1);
+
+            } else if (logoTimer == logoTimerOffset + 8) {
+                initBackgroundPalette((u8 *)logoPalette4, PAL1);
+
+            } else if (logoTimer == logoTimerOffset + 12) {
+                initBackgroundPalette((u8 *)logoPalette5, PAL1);
+
+            } else if (logoTimer == logoTimerOffset + 16) {
+                initBackgroundPalette((u8 *)logoPalette6, PAL1);
+
+            } else if (logoTimer == logoTimerOffset + 20) {
+                initBackgroundPalette((u8 *)logoPalette1, PAL1);
+                logoState = 1;
+            }
+            break;
     }
-
-    // Capcom color animation
-    if (logoTimer == logoTimerOffset) {
-        initBackgroundPalette((u8 *)logoPalette2, PAL1);
-
-    } else if (logoTimer == logoTimerOffset + 4) {
-        initBackgroundPalette((u8 *)logoPalette3, PAL1);
-
-    } else if (logoTimer == logoTimerOffset + 8) {
-        initBackgroundPalette((u8 *)logoPalette4, PAL1);
-
-    } else if (logoTimer == logoTimerOffset + 12) {
-        initBackgroundPalette((u8 *)logoPalette5, PAL1);
-
-    } else if (logoTimer == logoTimerOffset + 16) {
-        initBackgroundPalette((u8 *)logoPalette6, PAL1);
-
-    } else if (logoTimer == logoTimerOffset + 20) {
-        initBackgroundPalette((u8 *)logoPalette1, PAL1);
-        logoState = 1;
-    }
-
-    logoTimer++;
 
     // Fade in
     if (colorIntensity >= 0 && intensityState == 4) {
@@ -379,4 +379,19 @@ void updateLogo() {
     } else {
         intensityState += 1;
     }
+
+    if (logoTimer == 200) {
+        spcStop();
+
+    } else if (logoTimer == 201) {
+        spcProcess();
+        return 1;
+
+    } else {
+        spcProcess();
+    }
+
+    logoTimer++;
+
+    return 0;
 }

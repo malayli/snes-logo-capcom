@@ -2,6 +2,7 @@
 
 
     Capcom Logo for SNES Projects
+    Author: digifox
 
 
 ---------------------------------------------------------------------------------*/
@@ -17,15 +18,17 @@ int main(void) {
 
     dmaClearVram();
 
-    initLogo();
+    initCapcomLogo();
 
     setScreenOn();
     WaitForVBlank();
 
     while (1) {
-        updateLogo();
-
-        spcProcess();
+        if (updateCapcomLogo() == 1) {
+            // The logo animation is complete
+            // Paste your game code here
+            // consoleNocashMessage("Start your game!");
+        }
 
         // Wait for vblank
         WaitForVBlank();

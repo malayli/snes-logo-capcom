@@ -1,2 +1,2 @@
-void initLogo();
-void updateLogo();
+void initCapcomLogo();
+u8 updateCapcomLogo();
